@@ -1,0 +1,33 @@
+version: '3.4'
+services:
+  nginx:
+    container_name: 'estk_docker_nginx'
+    image: nginx:stable
+    ports:
+      - 8081:80
+    links:
+      - php
+    volumes:
+      - .:/var/www
+      - ./nginx:/etc/nginx/conf.d
+  mysql:
+    container_name: 'estk_docker_mysql'
+    image: mysql:5.7
+    restart: unless-stopped
+    command: --innodb_use_native_aio=0
+    ports:
+      - 3306:3306
+    env_file:
+      - ./mysql.env
+    volumes:
+      - ~/estk/mysql-estk:/var/lib/mysql
+  php:
+    container_name: 'estk_docker_php'
+    build: .
+    depends_on:
+      - mysql
+    env_file:
+      - ./.env
+    volumes:
+      - .:/var/www
+      - /etc/nginx/conf.d/
